@@ -6,13 +6,14 @@
 %endif
 Name:           deepin-devicemanager
 Version:        5.5.4.4
-Release:        1
+Release:        2
 Summary:        Device Manager is a handy tool for viewing hardware information and managing the devices.
 License:        GPLv3+
 URL:            https://uos-packages.deepin.com/uos/pool/main/d/deepin-devicemanager/
 Source0:        %{name}-%{version}.orig.tar.xz
 
 BuildRequires:  qt5-qtbase-devel
+BuildRequires:  dtkcore-devel
 BuildRequires:  dtkwidget-devel
 BuildRequires:  dde-qt-dbus-factory-devel
 BuildRequires:  qt5-qtsvg-devel
@@ -47,5 +48,8 @@ popd
 %doc README.md
 
 %changelog
+* Fri Aug 28 2020 chenbo pan <panchenbo@uniontech.com> - 5.5.4.4-2
+- fix compile fail
+
 * Thu Jul 30 2020 openEuler Buildteam <buildteam@openeuler.org> - 5.5.4.4-1
 - Package init
