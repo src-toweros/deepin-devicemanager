@@ -1,55 +1,70 @@
-%bcond_with check
-
-%global with_debug 1
-%if 0%{?with_debug}
-%global debug_package   %{nil}
-%endif
 Name:           deepin-devicemanager
-Version:        5.5.4.4
-Release:        2
-Summary:        Device Manager is a handy tool for viewing hardware information and managing the devices.
+Version:        5.5.9.36
+Release:        1
+Summary:        Device Manager is a handy tool for viewing hardware information and managing the devices
 License:        GPLv3+
-URL:            https://uos-packages.deepin.com/uos/pool/main/d/deepin-devicemanager/
-Source0:        %{name}-%{version}.orig.tar.xz
+URL:            https://github.com/linuxdeepin/deepin-devicemanager
+Source0:        %{name}-%{version}.tar.gz
 
-BuildRequires:  qt5-qtbase-devel
+BuildRequires: gcc-c++
+BuildRequires: cmake3
 BuildRequires:  dtkcore-devel
-BuildRequires:  dtkwidget-devel
-BuildRequires:  dde-qt-dbus-factory-devel
-BuildRequires:  qt5-qtsvg-devel
-BuildRequires:  cups-devel
+BuildRequires: dtkwidget-devel
+BuildRequires: systemd-devel
+BuildRequires: libicu-devel
+BuildRequires: qt5-rpm-macros
+BuildRequires: qt5-qtbase-devel
+BuildRequires: qt5-qttools-devel
+BuildRequires: cups-devel
+BuildRequires: pkgconfig(dframeworkdbus)
+
+
+Requires: smartmontools
+Requires: dmidecode
+Requires: xorg-x11-server-utils
+Requires: hwinfo
+Requires: cups
+Requires: upower
+Requires: deepin-shortcut-viewer
+Requires: lshw
+Requires: util-linux
 
 %description
-Device Manager is a handy tool for viewing hardware information and managing the devices.
-
+%{summary}.
 
 %prep
 %autosetup
 
 %build
-mkdir build && cd build
-%{_libdir}/qt5/bin/qmake ..
-%{__make}
+# help find (and prefer) qt5 utilities, e.g. qmake, lrelease
+export PATH=%{_qt5_bindir}:$PATH
+sed -i "s|^cmake_minimum_required.*|cmake_minimum_required(VERSION 3.0)|" $(find . -name "CMakeLists.txt")
 
-%install
-pushd %{_builddir}/%{name}-%{version}/build
-%make_install INSTALL_ROOT=%{buildroot}
+mkdir build && pushd build
+%cmake ../ -DCMAKE_BUILD_TYPE=Release -DAPP_VERSION=%{version} -DVERSION=%{version}
+%make_build
 popd
 
+%install
+%make_install -C build INSTALL_ROOT="%buildroot"
 
 %files
-%{_bindir}/deepin-devicemanager
-%{_bindir}/deepin-devicemanager-authenticateProxy
-%{_datadir}/%{name}/*
-%{_datadir}/applications/*
-%{_datadir}/icons/hicolor/scalable/apps/deepin-devicemanager.svg
-%{_datadir}/polkit-1/actions/com.deepin.pkexec.deepin-devicemanager-authenticateProxy.policy
-%license LICENSE
 %doc README.md
+%license LICENSE
+%{_bindir}/%{name}
+%{_bindir}/%{name}-authenticateProxy
+%{_datadir}/applications/%{name}.desktop
+%{_datadir}/%{name}/translations/*.qm
+%{_datadir}/icons/hicolor/scalable/apps/%{name}.svg
+%{_datadir}/polkit-1/actions/*.policy
 
 %changelog
+* Mon Jul 12 2021 weidong <weidong@uniontech.com> - 5.5.9.36-1
+- Update 5.5.9.36
+
 * Fri Aug 28 2020 chenbo pan <panchenbo@uniontech.com> - 5.5.4.4-2
 - fix compile fail
 
 * Thu Jul 30 2020 openEuler Buildteam <buildteam@openeuler.org> - 5.5.4.4-1
 - Package init
+
